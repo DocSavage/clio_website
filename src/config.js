@@ -2,7 +2,6 @@ export default {
   // project: 'FlyEM Private',
   project: 'clio-294722',
   projectBaseUrlDefault: 'https://clio-store-vwzoicitea-uk.a.run.app',
-  projectBaseUrlTest_orig: 'https://clio-store-test-7fdj77ed7q-uk.a.run.app',
   projectBaseUrlTest: 'https://clio-store-694445642738.us-east4.run.app/',
   top_level_function: 'v2',
   imageSliceUrlTemplate: 'https://tensorslice-bmcp5imp6q-uk.a.run.app/slice/<xyz>/256_256_1/jpeg?location=<location>',
