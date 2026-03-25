@@ -8,6 +8,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import SettingsIcon from '@material-ui/icons/Settings';
+import PersonIcon from '@material-ui/icons/Person';
 import HelpIcon from '@material-ui/icons/Help';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
@@ -184,12 +185,21 @@ function Navbar({ history, datasets, selectedDatasetName, setSelectedDataset }) 
           Hide Header
         </Button>
         <GoogleSignIn />
-        <IconButton to="/help" component={Link} className={classes.title}>
-          <HelpIcon />
-        </IconButton>
-        <IconButton to="/settings" component={Link} className={classes.title}>
-          <SettingsIcon />
-        </IconButton>
+        <Tooltip title="Help">
+          <IconButton to="/help" component={Link} className={classes.title}>
+            <HelpIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Profile">
+          <IconButton to="/profile" component={Link} className={classes.title}>
+            <PersonIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Settings">
+          <IconButton to="/settings" component={Link} className={classes.title}>
+            <SettingsIcon />
+          </IconButton>
+        </Tooltip>
       </Toolbar>
     </AppBar>
   );

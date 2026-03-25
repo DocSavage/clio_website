@@ -5,13 +5,14 @@ import Tooltip from '@material-ui/core/Tooltip';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import jwt_decode from 'jwt-decode';
-import { loginGoogleUser } from './actions/user';
+import { loginGoogleUser, dsgLogout } from './actions/user';
 import config from './config';
 
 export default function GoogleSignin() {
   const [gsiScriptLoaded, setGsiScriptLoaded] = useState(false);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.get('googleUser'), shallowEqual);
+  const authMethod = useSelector((state) => state.user.get('authMethod'));
 
   const handleGoogleSignIn = (res) => {
     if (!res.credential) {
@@ -69,20 +70,23 @@ export default function GoogleSignin() {
   }, [handleGoogleSignIn, user]);
 
   function handleLogout() {
-    dispatch({
-      type: 'LOGOUT_GOOGLE_USER',
-      user,
-    });
+    if (authMethod === 'dsg') {
+      dispatch(dsgLogout());
+    } else {
+      dispatch({
+        type: 'LOGOUT_GOOGLE_USER',
+        user,
+      });
+    }
   }
 
   if (user) {
-    console.log(user.info.picture);
     return (
       <Tooltip title="logout">
         <Button color="inherit" onClick={() => handleLogout()}>
           <Avatar
-            alt={user.info.name}
-            src={user.info.picture}
+            alt={user.info?.name}
+            src={user.info?.picture}
           />
         </Button>
       </Tooltip>

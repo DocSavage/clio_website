@@ -11,6 +11,7 @@ export default function Settings() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.get('googleUser'), shallowEqual);
   const roles = useSelector((state) => state.user.get('roles'), shallowEqual);
+  const authMethod = useSelector((state) => state.user.get('authMethod'));
   const isAdmin = roles.global_roles && roles.global_roles.includes('admin');
   const clioUrl = useSelector((state) => state.clio.get('projectUrl'), shallowEqual);
 
@@ -35,9 +36,8 @@ export default function Settings() {
     if (user && clioUrl) {
       const options = {
         method: 'post',
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
+        credentials: 'include',
+        headers: user.token ? { Authorization: `Bearer ${user.token}` } : {},
       };
 
       const tokenUrl = `${clioUrl}/server/token`;
@@ -51,13 +51,17 @@ export default function Settings() {
       <Typography variant="h5">Settings</Typography>
       {user && (
         <>
-          <p>USER: {user.info.name}</p>
-          <p>Google ID Token: {(new Date(user.info.exp * 1000) <= new Date()) ? '⚠️  expired' : ' ✅ valid' } </p>
-          <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-            {user.token}
-          </pre>
+          <p>USER: {user.info?.name || user.info?.email}</p>
+          {authMethod !== 'dsg' && user.info?.exp && (
+            <>
+              <p>Google ID Token: {(new Date(user.info.exp * 1000) <= new Date()) ? 'expired' : 'valid' } </p>
+              <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                {user.token}
+              </pre>
+            </>
+          )}
 
-          <p>ClioStore/DVID Token: </p>
+          <p>ClioStore Token: </p>
           <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
             {clioToken || 'loading...'}
           </pre>

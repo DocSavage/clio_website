@@ -7,6 +7,8 @@ const userState = Immutable.Map({
   token: '',
   googleUser: null,
   roles: {},
+  authMethod: null, // 'dsg' | 'google' | null
+  dsgAvailable: false, // true when backend has DSG routes
 });
 
 export default function userReducer(state = userState, action) {
@@ -31,7 +33,13 @@ export default function userReducer(state = userState, action) {
     }
     case C.LOGOUT_GOOGLE_USER: {
       localStorage.removeItem('user');
-      return state.set('googleUser', null).set('roles', {});
+      return state.set('googleUser', null).set('roles', {}).set('authMethod', null);
+    }
+    case C.SET_AUTH_METHOD: {
+      return state.set('authMethod', action.method);
+    }
+    case C.DSG_AVAILABLE: {
+      return state.set('dsgAvailable', action.available);
     }
     default: {
       return state;

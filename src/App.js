@@ -14,7 +14,7 @@ import Alerts from './Alerts';
 import UnauthenticatedApp from './UnauthenticatedApp';
 // import loadScript from './utils/load-script';
 // import removeScript from './utils/remove-script';
-import { loginGoogleUser } from './actions/user';
+import { loginGoogleUser, checkDsgAuth } from './actions/user';
 import config from './config';
 import { expandDatasets } from './utils/config';
 import { addAlert } from './actions/alerts';
@@ -25,6 +25,7 @@ const history = createBrowserHistory();
 
 const Home = lazy(() => import('./Home'));
 const Settings = lazy(() => import('./Settings'));
+const Profile = lazy(() => import('./Profile'));
 const UserAdmin = lazy(() => import('./UserAdmin'));
 const WorkSpaces = lazy(() => import('./WorkSpaces'));
 const AuthTest = lazy(() => import('./AuthTest'));
@@ -243,8 +244,7 @@ function App() {
   }, [user, dispatch, projectUrl]);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    function setNeurohubToken(token) {
       // this global key is used to store the auth token in a place where
       // the neuroglancer code can get access to it. DO NOT DELETE this without
       // first changing the way the clio plugin in neuroglancer authenticates
@@ -252,14 +252,32 @@ function App() {
       window.neurohub = {
         clio: {
           auth: {
-            getAuthResponse: () => ({ id_token: JSON.parse(storedUser).token }),
+            getAuthResponse: () => ({ id_token: token }),
           },
         },
       };
-      // This stores the logged in users details in the redux state, so that it can
-      // be used elsewhere in the app.
-      dispatch(loginGoogleUser(JSON.parse(storedUser)));
     }
+
+    async function initAuth() {
+      // Try DSG auth first (checks for dsg_token HttpOnly cookie)
+      const dsgOk = await dispatch(checkDsgAuth());
+      if (dsgOk) {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          setNeurohubToken(JSON.parse(storedUser).token);
+        }
+        return;
+      }
+
+      // Fall back to existing Google OAuth / localStorage path
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setNeurohubToken(JSON.parse(storedUser).token);
+        dispatch(loginGoogleUser(JSON.parse(storedUser)));
+      }
+    }
+
+    initAuth();
   }, [dispatch]);
 
   // if not logged in then show the login page for all routes.
@@ -288,6 +306,7 @@ function App() {
                 <Route path="/ws/:ws">
                   <WorkSpaces datasets={datasets} selectedDatasetName={selectedDatasetName} />
                 </Route>
+                <Route path="/profile" component={Profile} />
                 <Route path="/settings" component={Settings} />
                 <Route path="/help" component={Help} />
                 <Route path="/api/docs" component={Docs} />
