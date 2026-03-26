@@ -54,7 +54,7 @@ export default function Settings() {
           <p>USER: {user.info?.name || user.info?.email}</p>
           {authMethod !== 'dsg' && user.info?.exp && (
             <>
-              <p>Google ID Token: {(new Date(user.info.exp * 1000) <= new Date()) ? 'expired' : 'valid' } </p>
+              <p>Google ID Token: {(new Date(user.info.exp * 1000) <= new Date()) ? '⚠️  expired' : ' ✅ valid' } </p>
               <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
                 {user.token}
               </pre>
