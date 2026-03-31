@@ -45,16 +45,25 @@ export default function Profile() {
   const datasetPerms = roles.datasets || {};
   const groups = roles.groups || [];
 
+  let userEmail = 'unknown';
+  if (user && user.info && user.info.email) {
+    userEmail = user.info.email;
+  }
+  let userName = 'unknown';
+  if (user && user.info && user.info.name) {
+    userName = user.info.name;
+  }
+
   return (
     <div className={classes.root}>
       <Typography variant="h5" gutterBottom>Profile</Typography>
 
       <div className={classes.section}>
         <Typography variant="subtitle2" color="textSecondary">Email</Typography>
-        <Typography>{roles.email || user?.info?.email || 'unknown'}</Typography>
+        <Typography>{roles.email || userEmail || 'unknown'}</Typography>
       </div>
 
-      {(roles.name || user?.info?.name) && (
+      {(roles.name || userName) && (
         <div className={classes.section}>
           <Typography variant="subtitle2" color="textSecondary">Name</Typography>
           <Typography>{roles.name || user.info.name}</Typography>
@@ -127,7 +136,8 @@ export default function Profile() {
           </Table>
         ) : (
           <Typography variant="body2" color="textSecondary">
-            No dataset-specific permissions. Access is determined by global roles and public datasets.
+            No dataset-specific permissions. Access is determined by global
+            roles and public datasets.
           </Typography>
         )}
       </div>

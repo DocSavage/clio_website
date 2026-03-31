@@ -85,8 +85,8 @@ export default function GoogleSignin() {
       <Tooltip title="logout">
         <Button color="inherit" onClick={() => handleLogout()}>
           <Avatar
-            alt={user.info?.name}
-            src={user.info?.picture}
+            alt={user.info.name ? user.info.name : ''}
+            src={user.info.picture ? user.info.picture : ''}
           />
         </Button>
       </Tooltip>
