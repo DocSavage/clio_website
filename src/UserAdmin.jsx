@@ -49,6 +49,10 @@ function UserAdmin() {
             if (result.status === 403) {
               throw new Error('Not authorized.');
             }
+            if (result.status === 501) {
+              // clio-store returns 501 when DSG is managing users.
+              throw new Error('DSG_NOT_IMPLEMENTED');
+            }
             throw new Error('Server response failed');
           }
           return result.json();
@@ -107,6 +111,24 @@ function UserAdmin() {
   }
 
   if (loadState === 'failed') {
+    if (errorMsg === 'DSG_NOT_IMPLEMENTED') {
+      const dsgUrl = user && user.info && user.info.dsg_url;
+      return (
+        <div className={classes.alert}>
+          <Alert severity="info">
+            User management for this deployment is handled by DatasetGateway.
+            {dsgUrl && (
+              <>
+                {' '}
+                <a href={`${dsgUrl}/admin/`} target="_blank" rel="noopener noreferrer">
+                  Open DatasetGateway admin →
+                </a>
+              </>
+            )}
+          </Alert>
+        </div>
+      );
+    }
     return (
       <div className={classes.alert}>
         <Alert severity="error">Failed to load users list. {errorMsg}</Alert>

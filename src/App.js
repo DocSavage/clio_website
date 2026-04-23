@@ -14,7 +14,7 @@ import Alerts from './Alerts';
 import UnauthenticatedApp from './UnauthenticatedApp';
 // import loadScript from './utils/load-script';
 // import removeScript from './utils/remove-script';
-import { loginGoogleUser } from './actions/user';
+import { loginDSGUser } from './actions/user';
 import config from './config';
 import { expandDatasets } from './utils/config';
 import { addAlert } from './actions/alerts';
@@ -208,6 +208,7 @@ function App() {
   useEffect(() => {
     if (user) {
       const options = {
+        credentials: 'include',
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -242,25 +243,15 @@ function App() {
     }
   }, [user, dispatch, projectUrl]);
 
+  // Rehydrate the user session from the backend. In DSG mode the dsg_token
+  // HttpOnly cookie survives page reloads, so we just ask the backend who we
+  // are via /profile. The loginDSGUser thunk installs the Neuroglancer bridge
+  // (window.neurohub.clio.auth) with the fresh Bearer token so our neuroglancer
+  // fork can authenticate against clio-store.
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      // this global key is used to store the auth token in a place where
-      // the neuroglancer code can get access to it. DO NOT DELETE this without
-      // first changing the way the clio plugin in neuroglancer authenticates
-      // against the clio store.
-      window.neurohub = {
-        clio: {
-          auth: {
-            getAuthResponse: () => ({ id_token: JSON.parse(storedUser).token }),
-          },
-        },
-      };
-      // This stores the logged in users details in the redux state, so that it can
-      // be used elsewhere in the app.
-      dispatch(loginGoogleUser(JSON.parse(storedUser)));
-    }
-  }, [dispatch]);
+    if (!projectUrl) return;
+    dispatch(loginDSGUser());
+  }, [dispatch, projectUrl]);
 
   // if not logged in then show the login page for all routes.
   if (!user) {
