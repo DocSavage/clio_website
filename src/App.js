@@ -191,7 +191,7 @@ function App() {
             method: 'POST',
             keepalive: 'true',
             headers: {
-              Authorization: `Bearer ${user.getAuthResponse().id_token}`,
+              Authorization: `Bearer ${user.token}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
